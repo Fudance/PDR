@@ -66,6 +66,11 @@ namespace PDR.PatientBookingApi.Controllers
 
             var validationResult = _newBookingRequestValidator.ValidateRequest(newBooking);
 
+            if(validationResult.PassedValidation != true)
+            {
+                return BadRequest();
+            }
+
             var myBooking = new Order
             {
                 Id = bookingId,
