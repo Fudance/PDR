@@ -91,7 +91,7 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
         {
             // arrange
             var request = GetValidRequest();
-            request.EndTime = DateTime.UtcNow;
+            request.StartTime = DateTime.UtcNow;
             request.EndTime = DateTime.UtcNow.AddHours(1);
 
             // act
@@ -104,8 +104,8 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
         private NewBookingRequest GetValidRequest()
         {
             var request = _fixture.Build<NewBookingRequest>()
-                .With(x => x.StartTime, DateTime.UtcNow)
-                .With(x => x.EndTime, DateTime.UtcNow.AddHours(1))
+                .With(x => x.StartTime, DateTime.UtcNow.AddHours(1))
+                .With(x => x.EndTime, DateTime.UtcNow.AddHours(2))
                 .Create();
             return request;
         }
