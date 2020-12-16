@@ -23,6 +23,9 @@ namespace PDR.PatientBooking.Service.BookingServices.Validation
             if (BookingTimeInvalid(request, ref result))
                 return result;
 
+            if (DoctorIsNotAvailable(request, ref result))
+                return result;
+
             return result;
         }
 
@@ -45,6 +48,25 @@ namespace PDR.PatientBooking.Service.BookingServices.Validation
                 result.PassedValidation = false;
                 result.Errors.AddRange(errors);
                 return true;
+            }
+
+            return false;
+        }
+
+        public bool DoctorIsNotAvailable(NewBookingRequest request, ref PdrValidationResult result)
+        {
+            var doctorsBookings = _context.Order.Where(o => o.DoctorId == request.DoctorId);
+
+            if(doctorsBookings.Any())
+            {
+                var bookedTime = doctorsBookings.Where(b => !(b.StartTime >= request.EndTime || request.StartTime >= b.EndTime));
+
+                if(bookedTime.Any())
+                {
+                    result.PassedValidation = false;
+                    result.Errors.Add("The Doctor is already booked in this time slot");
+                    return true;
+                }
             }
 
             return false;
