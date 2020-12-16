@@ -70,6 +70,7 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
 
             // assert
             result.PassedValidation.Should().BeFalse();
+            result.Errors.Should().Contain("StartTime cannot be in the past");
         }
 
         [Test]
@@ -84,6 +85,7 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
 
             // assert
             result.PassedValidation.Should().BeFalse();
+            result.Errors.Should().Contain("EndTime cannot be in the past");
         }
 
         [Test]
@@ -91,7 +93,7 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
         {
             // arrange
             var request = GetValidRequest();
-            request.StartTime = DateTime.UtcNow;
+            request.StartTime = DateTime.UtcNow.AddHours(2);
             request.EndTime = DateTime.UtcNow.AddHours(1);
 
             // act
@@ -99,6 +101,22 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
 
             // assert
             result.PassedValidation.Should().BeFalse();
+            result.Errors.Should().Contain("EndTime cannot be before StartTime");
+        }
+
+        [Test]
+        public void ValidateRequest_DoctorIsAlreadyBooked_ReturnsFailedValidationResult()
+        {
+            // arrange
+            var request = GetValidRequest();
+
+            // act
+            var result = _newBookingRequestValidator.ValidateRequest(request);
+
+            // assert
+            result.PassedValidation.Should().BeFalse();
+            result.Errors.Should().Contain("The Doctor is already booked in this slot");
+
         }
 
         private NewBookingRequest GetValidRequest()
