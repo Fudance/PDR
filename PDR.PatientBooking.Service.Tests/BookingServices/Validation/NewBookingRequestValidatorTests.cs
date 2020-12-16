@@ -45,10 +45,68 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
 
         }
 
+        [Test]
+        public void ValidateRequest_AllCheckPass_ReturnsPassedValidationResult()
+        {
+            // arrange
+            var request = GetValidRequest();
+
+            // act
+            var result = _newBookingRequestValidator.ValidateRequest(request);
+
+            // assert
+            result.PassedValidation.Should().BeTrue();
+        }
+
+        [Test]
+        public void ValidateRequest_StartTimeIsInPast_ReturnsFailedValidationResult()
+        {
+            // arrange
+            var request = GetValidRequest();
+            request.StartTime = DateTime.UtcNow.AddHours(-1);
+
+            // act
+            var result = _newBookingRequestValidator.ValidateRequest(request);
+
+            // assert
+            result.PassedValidation.Should().BeFalse();
+        }
+
+        [Test]
+        public void ValidateRequest_EndTimeIsInPast_ReturnsFailedValidationResult()
+        {
+            // arrange
+            var request = GetValidRequest();
+            request.EndTime = DateTime.UtcNow.AddHours(-1);
+
+            // act
+            var result = _newBookingRequestValidator.ValidateRequest(request);
+
+            // assert
+            result.PassedValidation.Should().BeFalse();
+        }
+
+        [Test]
+        public void ValidateRequest_EndTimeIsBeforeStartTime_ReturnsFailedValidationResult()
+        {
+            // arrange
+            var request = GetValidRequest();
+            request.EndTime = DateTime.UtcNow;
+            request.EndTime = DateTime.UtcNow.AddHours(1);
+
+            // act
+            var result = _newBookingRequestValidator.ValidateRequest(request);
+
+            // assert
+            result.PassedValidation.Should().BeFalse();
+        }
 
         private NewBookingRequest GetValidRequest()
         {
-            var request = _fixture.Create<NewBookingRequest>();
+            var request = _fixture.Build<NewBookingRequest>()
+                .With(x => x.StartTime, DateTime.UtcNow)
+                .With(x => x.EndTime, DateTime.UtcNow.AddHours(1))
+                .Create();
             return request;
         }
     }
