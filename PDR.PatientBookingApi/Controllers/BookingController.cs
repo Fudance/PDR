@@ -2,6 +2,7 @@
 using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
 using PDR.PatientBooking.Service.BookingServices.Requests;
+using PDR.PatientBooking.Service.BookingServices.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,12 @@ namespace PDR.PatientBookingApi.Controllers
     public class BookingController : ControllerBase
     {
         private readonly PatientBookingContext _context;
+        private readonly INewBookingRequestValidator _newBookingRequestValidator;
 
-        public BookingController(PatientBookingContext context)
+        public BookingController(PatientBookingContext context, INewBookingRequestValidator newBookingRequestValidator)
         {
             _context = context;
+            _newBookingRequestValidator = newBookingRequestValidator;
         }
 
         [HttpGet("patient/{identificationNumber}/next")]
@@ -60,6 +63,8 @@ namespace PDR.PatientBookingApi.Controllers
             var bookingDoctorId = newBooking.DoctorId;
             var bookingDoctor = _context.Doctor.FirstOrDefault(x => x.Id == newBooking.DoctorId);
             var bookingSurgeryType = _context.Patient.FirstOrDefault(x => x.Id == bookingPatientId).Clinic.SurgeryType;
+
+            var validationResult = _newBookingRequestValidator.ValidateRequest(newBooking);
 
             var myBooking = new Order
             {

@@ -18,6 +18,7 @@ namespace PDR.PatientBookingApi
                 var context = services.GetRequiredService<PatientBookingContext>();
 
                 new DatabaseSeed(context).SeedDatabase();
+
             }
 
             host.Run();
