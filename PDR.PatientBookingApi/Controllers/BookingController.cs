@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
+using PDR.PatientBooking.Service.BookingServices.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace PDR.PatientBookingApi.Controllers
         }
 
         [HttpPost()]
-        public IActionResult AddBooking(NewBooking newBooking)
+        public IActionResult AddBooking(NewBookingRequest newBooking)
         {
             var bookingId = new Guid();
             var bookingStartTime = newBooking.StartTime;
@@ -76,15 +77,6 @@ namespace PDR.PatientBookingApi.Controllers
             _context.SaveChanges();
 
             return StatusCode(200);
-        }
-
-        public class NewBooking
-        {
-            public Guid Id { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public long PatientId { get; set; }
-            public long DoctorId { get; set; }
         }
 
         private static MyOrderResult UpdateLatestBooking(List<Order> bookings2, int i)
