@@ -6,7 +6,9 @@ using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
 using PDR.PatientBooking.Service.BookingServices.Requests;
 using PDR.PatientBooking.Service.BookingServices.Validation;
+using PDR.PatientBooking.Data.DataSeed;
 using System;
+using System.Collections.Generic;
 
 namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
 {
@@ -104,18 +106,28 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
             result.Errors.Should().Contain("EndTime cannot be before StartTime");
         }
 
-        [Test]
-        public void ValidateRequest_DoctorIsAlreadyBooked_ReturnsFailedValidationResult()
+        [TestCase("2100-1-11 12:15:00","2100-11-1 12:30:00")] // full time slot taken
+        [TestCase("2100-1-11 12:16:00","2100-11-1 12:29:00")] // inner time slot
+        [TestCase("2100-1-11 12:10:00","2100-11-1 12:29:00")] // overlap with start
+        [TestCase("2100-1-11 12:20:00","2100-11-1 12:35:00")] // overlap with end
+        public void ValidateRequest_DoctorIsAlreadyBooked_ReturnsFailedValidationResult(DateTime startTime, DateTime endTime)
         {
             // arrange
             var request = GetValidRequest();
+            request.DoctorId = 1;
+
+            // note that the start times are way into the future so we don't fall foul of the
+            // validation that checks the start/end times of the booking against DateTime.Now.
+            // This should really be improved.
+            request.StartTime = startTime;
+            request.EndTime = endTime;
 
             // act
             var result = _newBookingRequestValidator.ValidateRequest(request);
 
             // assert
             result.PassedValidation.Should().BeFalse();
-            result.Errors.Should().Contain("The Doctor is already booked in this slot");
+            result.Errors.Should().Contain("The Doctor is already booked in this time slot");
 
         }
 
@@ -125,6 +137,21 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
                 .With(x => x.StartTime, DateTime.UtcNow.AddHours(1))
                 .With(x => x.EndTime, DateTime.UtcNow.AddHours(2))
                 .Create();
+
+            var orders = new List<Order>
+            {
+                new Order
+                {
+                    DoctorId = 1,
+                    Id = Guid.Parse("683074b8-44c9-468b-9288-dfafa1e533c9"),
+                    StartTime = new DateTime(2100, 1, 11, 12, 15, 00),
+                    EndTime = new DateTime(2100, 1, 11, 12, 30, 00)
+                },
+
+            };
+
+            _context.Order.AddRange(orders);
+            _context.SaveChanges();
             return request;
         }
     }
