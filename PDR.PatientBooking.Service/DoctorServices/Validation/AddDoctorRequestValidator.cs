@@ -25,7 +25,24 @@ namespace PDR.PatientBooking.Service.DoctorServices.Validation
             if (DoctorAlreadyInDb(request, ref result))
                 return result;
 
+            if (EmailAddressInvalid(request, ref result))
+                return result;
+
             return result;
+        }
+
+        public bool EmailAddressInvalid(AddDoctorRequest request, ref PdrValidationResult result)
+        {
+            var emailAddressAttribute = new System.ComponentModel.DataAnnotations.EmailAddressAttribute();
+
+            if (!emailAddressAttribute.IsValid(request.Email))
+            {
+                result.PassedValidation = false;
+                result.Errors.Add("A valid email address must be supplied");
+                return false;
+            }
+
+            return true;
         }
 
         public bool MissingRequiredFields(AddDoctorRequest request, ref PdrValidationResult result)
