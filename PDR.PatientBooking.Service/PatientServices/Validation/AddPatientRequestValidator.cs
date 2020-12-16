@@ -28,7 +28,24 @@ namespace PDR.PatientBooking.Service.PatientServices.Validation
             if (ClinicNotFound(request, ref result))
                 return result;
 
+            if (EmailAddressInvalid(request, ref result))
+                return result;
+
             return result;
+        }
+
+        public bool EmailAddressInvalid(AddPatientRequest request, ref PdrValidationResult result)
+        {
+            var emailAddressAttribute = new System.ComponentModel.DataAnnotations.EmailAddressAttribute();
+
+            if (!emailAddressAttribute.IsValid(request.Email))
+            {
+                result.PassedValidation = false;
+                result.Errors.Add("Email must be a valid email address");
+                return false;
+            }
+
+            return true;
         }
 
         private bool MissingRequiredFields(AddPatientRequest request, ref PdrValidationResult result)
