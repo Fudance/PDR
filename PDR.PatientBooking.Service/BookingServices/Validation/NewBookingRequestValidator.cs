@@ -28,7 +28,26 @@ namespace PDR.PatientBooking.Service.BookingServices.Validation
 
         public bool BookingTimeInvalid(NewBookingRequest request, ref PdrValidationResult result)
         {
-            throw new NotImplementedException();
+
+            var errors = new List<string>();
+
+            if (request.StartTime < DateTime.Now)
+                errors.Add("StartTime cannot be in the past");
+
+            if(request.EndTime < DateTime.Now)
+                errors.Add("EndTime cannot be in the past");
+
+            if(request.EndTime < request.StartTime)
+                errors.Add("EndTime cannot be before StartTime");
+
+            if(errors.Any())
+            {
+                result.PassedValidation = false;
+                result.Errors.AddRange(errors);
+                return true;
+            }
+
+            return false;
         }
 
     }
