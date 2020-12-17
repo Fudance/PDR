@@ -3,6 +3,7 @@ using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
 using PDR.PatientBooking.Service.BookingServices;
 using PDR.PatientBooking.Service.BookingServices.Requests;
+using PDR.PatientBooking.Service.BookingServices.Responses;
 using PDR.PatientBooking.Service.BookingServices.Validation;
 using System;
 using System.Collections.Generic;
@@ -113,14 +114,5 @@ namespace PDR.PatientBookingApi.Controllers
             return latestBooking;
         }
 
-        private class MyOrderResult
-        {
-            public Guid Id { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public long PatientId { get; set; }
-            public long DoctorId { get; set; }
-            public int SurgeryType { get; set; }
-        }
     }
 }
