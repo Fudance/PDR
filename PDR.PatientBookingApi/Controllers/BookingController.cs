@@ -41,8 +41,13 @@ namespace PDR.PatientBookingApi.Controllers
         [HttpDelete("patient/{identificationNumber}/{bookingId}")]
         public IActionResult CancelBooking(long identificationNumber, string bookingId)
         {
-            _bookingService.CancelBooking(identificationNumber, bookingId);
-            throw new NotImplementedException();
+            bool result = _bookingService.CancelBooking(identificationNumber, bookingId);
+            if(false == result)
+            {
+                return StatusCode(502);
+            }
+
+            return Ok();
         }
 
         [HttpPost()]
