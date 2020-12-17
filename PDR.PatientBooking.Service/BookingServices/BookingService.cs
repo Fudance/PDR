@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PDR.PatientBooking.Data;
+﻿using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
 using PDR.PatientBooking.Service.BookingServices.Requests;
 using PDR.PatientBooking.Service.BookingServices.Responses;
-//using PDR.PatientBooking.Service.BookingServices.Responses;
 using PDR.PatientBooking.Service.BookingServices.Validation;
 using System;
 using System.Collections.Generic;
@@ -40,7 +38,7 @@ namespace PDR.PatientBooking.Service.BookingServices
                 }
                 else
                 {
-                    var bookings3 = bookings2.Where(x => x.StartTime > DateTime.Now);
+                    var bookings3 = bookings2.Where(x => x.StartTime > DateTime.Now && x.Cancelled == false);
 
                     nextPatientBookingResponse.Id = bookings3.First().Id;
                     nextPatientBookingResponse.DoctorId = bookings3.First().DoctorId;
@@ -52,9 +50,39 @@ namespace PDR.PatientBooking.Service.BookingServices
             }
         }
 
-        public void CancelBooking(long patientIdentificationNumber, string bookingId)
+        public bool CancelBooking(long patientIdentificationNumber, string bookingId)
         {
-            throw new NotImplementedException();
+            // is the booking valid and does it belong to the patient
+            bool validId = Guid.TryParse(bookingId, out Guid bookingIdAsGuid);
+            if(true == validId)
+            {
+                if(false == _context.Order.Any((o => o.Id == bookingIdAsGuid))) {
+                    return false;
+                }
+                var booking = _context.Order.First(o => o.Id == bookingIdAsGuid);
+
+                if(null == booking)
+                {
+                    return false;
+                }
+                
+                // Ensure that the booking belongs to the patient that requested
+                // the cancellation
+                if(booking.PatientId == patientIdentificationNumber)
+                {
+                    var orderToCancel = _context.Order.Where(o => o.Id == bookingIdAsGuid)
+                                                      .Where(o => o.PatientId == patientIdentificationNumber)
+                                                      .First();
+                    orderToCancel.Cancelled = true;
+
+                    _context.SaveChanges();
+                    return true;
+                }
+
+                return false;
+            }
+
+            return false;
         }
 
         public bool AddBooking(NewBookingRequest newBooking)

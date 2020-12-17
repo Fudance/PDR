@@ -7,6 +7,6 @@ namespace PDR.PatientBooking.Service.BookingServices
     {
         bool GetPatientNextAppointment(long identificationNumber, out NextPatientBookingResponse nextPatientBookingResponse);
         bool AddBooking(NewBookingRequest newBooking);
-        void CancelBooking(long patientIdentificationNumber, string bookingId);
+        bool CancelBooking(long patientIdentificationNumber, string bookingId);
     }
 }
