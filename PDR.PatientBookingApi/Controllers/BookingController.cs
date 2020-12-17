@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
+using PDR.PatientBooking.Service.BookingServices;
 using PDR.PatientBooking.Service.BookingServices.Requests;
 using PDR.PatientBooking.Service.BookingServices.Validation;
 using System;
@@ -14,11 +15,13 @@ namespace PDR.PatientBookingApi.Controllers
     public class BookingController : ControllerBase
     {
         private readonly PatientBookingContext _context;
+        private readonly IBookingService _bookingService;
         private readonly INewBookingRequestValidator _newBookingRequestValidator;
 
-        public BookingController(PatientBookingContext context, INewBookingRequestValidator newBookingRequestValidator)
+        public BookingController(PatientBookingContext context, INewBookingRequestValidator newBookingRequestValidator, IBookingService bookingService)
         {
             _context = context;
+            _bookingService = bookingService;
             _newBookingRequestValidator = newBookingRequestValidator;
         }
 
@@ -50,6 +53,13 @@ namespace PDR.PatientBookingApi.Controllers
                     });
                 }
             }
+        }
+
+        [HttpDelete("patient/{identificationNumber}/{bookingId}")]
+        public IActionResult CancelBooking(long identificationNumber, string bookingId)
+        {
+            _bookingService.CancelBooking(identificationNumber, bookingId);
+            throw new NotImplementedException();
         }
 
         [HttpPost()]
