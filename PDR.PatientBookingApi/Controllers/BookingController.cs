@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Data.Models;
 using PDR.PatientBooking.Service.BookingServices;
 using PDR.PatientBooking.Service.BookingServices.Requests;
 using PDR.PatientBooking.Service.BookingServices.Responses;
-using PDR.PatientBooking.Service.BookingServices.Validation;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PDR.PatientBookingApi.Controllers
 {
@@ -15,19 +12,15 @@ namespace PDR.PatientBookingApi.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly PatientBookingContext _context;
         private readonly IBookingService _bookingService;
-        private readonly INewBookingRequestValidator _newBookingRequestValidator;
 
-        public BookingController(PatientBookingContext context, INewBookingRequestValidator newBookingRequestValidator, IBookingService bookingService)
+        public BookingController(IBookingService bookingService)
         {
-            _context = context;
             _bookingService = bookingService;
-            _newBookingRequestValidator = newBookingRequestValidator;
         }
 
         [HttpGet("patient/{identificationNumber}/next")]
-        public IActionResult GetPatientNextAppointnemtn(long identificationNumber)
+        public IActionResult GetPatientNextAppointment(long identificationNumber)
         {
 
             bool result = _bookingService.GetPatientNextAppointment(identificationNumber, out NextPatientBookingResponse bookingResponse);
